@@ -1,0 +1,3 @@
+# Optional deps for scripts/process_all_episodes.py (LLM-backed batch summaries)
+anthropic>=0.45.0
+openai>=1.40.0

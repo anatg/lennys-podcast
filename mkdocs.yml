@@ -1,0 +1,68 @@
+# Lenny's Podcast — PM study guide (static site)
+# Docs live under study-guide/ (same tree as GitHub browsing).
+#
+#   pip install -r requirements-docs.txt
+#   mkdocs serve          # http://127.0.0.1:8000
+#   mkdocs build          # output: site/
+
+site_name: Lenny's Podcast — PM Study Guide
+site_description: Episode notes, book chapters, and interview flashcards from Lenny's Podcast.
+site_author: Study guide (local corpus)
+
+docs_dir: study-guide
+site_dir: site
+
+exclude_docs: |
+  README.md
+  EPISODE_TEMPLATE.md
+
+theme:
+  name: material
+  language: en
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Light mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Dark mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.expand
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+
+plugins:
+  - search
+  - awesome-pages
+
+markdown_extensions:
+  - pymdownx.snippets:
+      base_path: ["."]
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+
+extra:
+  generator: false

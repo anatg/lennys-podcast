@@ -1,0 +1,9 @@
+nav:
+  - Home: index.md
+  - The Book:
+    - themes
+  - Interview prep:
+    - interview-prep/flashcards.md
+    - Flashcard web UI: interview-prep/index.html
+  - Episodes:
+    - episodes
