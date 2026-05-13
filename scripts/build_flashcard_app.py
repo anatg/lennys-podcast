@@ -23,9 +23,9 @@ SKIP_SECTIONS = {"how to practice", "appendix: expand this deck"}
 CARD_RE = re.compile(
     r"###\s+Card\s+\d+:\s*(.+?)\s*\n"
     r"\*\*Q:\*\*\s*(.+?)\s*\n"
-    r"\*\*Framework:\*\*\s*(.+?)\s*\n"
-    r"\*\*Examples:\*\*\s*(.+?)\s*\n"
-    r"\*\*Open with:\*\*\s*(.+?)(?=\n###\s+Card|\n##\s|\n---\s*$|\Z)",
+    r"\*\*Answer:\*\*\s*(.+?)\s*\n"
+    r"\*\*Insight:\*\*\s*(.+?)\s*\n"
+    r"\*\*Story:\*\*\s*(.+?)(?=\n###\s+Card|\n##\s|\n---\s*$|\Z)",
     re.S | re.I,
 )
 
@@ -44,15 +44,15 @@ def parse_cards(md: str) -> list[dict[str, str]]:
         if "### Card" not in body:
             continue
         for m in CARD_RE.finditer(body):
-            title, q, fw, ex, ow = (x.strip() for x in m.groups())
+            title, q, answer, insight, story = (x.strip() for x in m.groups())
             out.append(
                 {
                     "category": name,
                     "title": title,
                     "q": q,
-                    "framework": fw,
-                    "examples": ex,
-                    "openWith": ow,
+                    "answer": answer,
+                    "insight": insight,
+                    "story": story,
                 }
             )
     return out
@@ -342,12 +342,12 @@ def build_html(cards: list[dict[str, str]]) -> str:
         escapeHtml(c.q) +
         "</p>";
       back.innerHTML =
-        "<h3>Say this</h3><div class='say-this'><p>" +
-        fmtBold(c.openWith) +
+        "<h3>Answer</h3><div class='say-this'><p>" +
+        fmtBold(c.answer) +
         "</p></div><h3>Key insight</h3><p>" +
-        fmtBold(c.framework) +
-        "</p><h3>Stories to draw from</h3><p>" +
-        fmtBold(c.examples) +
+        fmtBold(c.insight) +
+        "</p><h3>Story to use</h3><p>" +
+        fmtBold(c.story) +
         "</p>";
       progress.textContent = idx + 1 + " / " + active.length + " · " + c.category;
     }}
