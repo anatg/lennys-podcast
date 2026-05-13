@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PM Interview Flashcards</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --text: #e7ecf3;
+      --muted: #8b9cb3;
+      --accent: #5b8def;
+      --accent-dim: #3d5a8a;
+      --radius: 14px;
+      --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: var(--font);
+      background: radial-gradient(1200px 600px at 50% -10%, #1e2a44 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 5rem;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    h1 {
+      font-size: 1.15rem;
+      font-weight: 650;
+      margin: 0;
+      flex: 1 1 100%;
+    }
+    label { font-size: 0.8rem; color: var(--muted); }
+    select {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid #2a3a52;
+      border-radius: 10px;
+      padding: 0.45rem 0.65rem;
+      font-size: 0.9rem;
+      min-width: 220px;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: flex-end;
+    }
+    button {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid #2a3a52;
+      border-radius: 10px;
+      padding: 0.5rem 0.85rem;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+    button:hover { border-color: var(--accent-dim); }
+    button.primary {
+      background: linear-gradient(160deg, #4a7ae8, #355bb5);
+      border-color: #4a6ec4;
+      font-weight: 600;
+    }
+    button.primary:hover { filter: brightness(1.06); }
+    .meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin: 0.35rem 0 0.75rem;
+      width: 100%;
+    }
+    .scene {
+      perspective: 1200px;
+      margin-top: 0.5rem;
+    }
+    .card {
+      position: relative;
+      min-height: 300px;
+      transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+      cursor: pointer;
+    }
+    .card.flipped { transform: rotateY(180deg); }
+    .face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: var(--radius);
+      padding: 1.15rem 1.25rem;
+      border: 1px solid #2a3a52;
+      background: linear-gradient(165deg, #1c2738 0%, #151d2b 100%);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+      overflow: auto;
+    }
+    .face.back {
+      transform: rotateY(180deg);
+    }
+    .tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin: 0 0 0.65rem;
+    }
+    .q {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 0;
+      line-height: 1.35;
+    }
+    .back h3 {
+      margin: 0 0 0.5rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+    .back p {
+      margin: 0 0 0.85rem;
+      font-size: 0.95rem;
+      color: #dce4ef;
+    }
+    .back p:last-child { margin-bottom: 0; }
+    .hint {
+      margin-top: 0.75rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    kbd {
+      font: 0.75rem monospace;
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      border: 1px solid #3a4a63;
+      background: #151d2b;
+    }
+    footer.nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 0.65rem 1rem calc(0.65rem + env(safe-area-inset-bottom));
+      background: rgba(15, 20, 25, 0.92);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid #243047;
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    a.source {
+      color: var(--accent);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>PM interview flashcards</h1>
+      <div class="toolbar">
+        <div>
+          <label for="cat">Category</label><br />
+          <select id="cat" aria-label="Category"></select>
+        </div>
+        <button type="button" id="shuffle" title="Shuffle current filter">Shuffle</button>
+        <button type="button" id="all" class="primary" title="All categories">All cards</button>
+      </div>
+      <p class="meta" id="progress"></p>
+      <a class="source" href="./flashcards.md">Edit source: flashcards.md</a>
+    </header>
+    <div class="scene">
+      <div class="card" id="flipCard" role="button" tabindex="0" aria-label="Flip card. Space to flip.">
+        <div class="face front" id="front"></div>
+        <div class="face back" id="back"></div>
+      </div>
+    </div>
+    <p class="hint">Click card or <kbd>Space</kbd> to flip · <kbd>←</kbd> <kbd>→</kbd> prev/next</p>
+  </div>
+  <footer class="nav">
+    <button type="button" id="prev">← Prev</button>
+    <button type="button" id="flipBtn" class="primary">Flip</button>
+    <button type="button" id="next">Next →</button>
+  </footer>
+  <script>
+    const CARDS = [{"category": "Prioritization & roadmap", "title": "“How do you prioritize?”", "q": "We have more ideas than capacity. How do you decide what ships first?", "framework": "Stack decisions: **strategy kernel** (diagnosis → guiding policy → coherent actions per Rumelt) → **outcome vs output** (empowered teams solve problems, not feature lists per Cagan) → **crux** (one hardest barrier; focus power there).", "examples": "(1) Cut roadmap items that don’t connect to company strategy stack (Ravi Mehta’s stack in Ch.2). (2) Reframe “priorities” as bets with explicit **non-goals**. (3) Use **input metrics** you control vs vanity outputs (Ch.5 / Carr).", "openWith": "“I separate *strategy* from *backlog*—priorities are bets on a diagnosis, not whoever argued loudest.”"}, {"category": "Prioritization & roadmap", "title": "“Say no to a CEO”", "q": "The CEO wants a feature that doesn’t align with strategy. What do you do?", "framework": "**Three realities** (intent / behavior / impact) + **viability + value risk** (Cagan’s frame): translate the request into customer/business risk tests. Offer cheaper validation paths before full build.", "examples": "(1) Propose a **time-boxed discovery** slice with success criteria. (2) Show opportunity cost against the crux initiative. (3) Offer a **scope ladder** (MVP vs full).", "openWith": "“I’d align on what success would need to be true for both of us—then pick the smallest experiment that tests that.”"}, {"category": "Prioritization & roadmap", "title": "“Roadmap for the next quarter”", "q": "Walk me through how you’d build a quarterly roadmap.", "framework": "**Mission → company strategy → product strategy → goals → roadmap** (avoid skipping layers). Mix **outcomes** with **inputs** (Ch.5). Leave capacity for unknowns.", "examples": "(1) Tie each theme to a **North Star** + leading inputs. (2) Book **unplanned buffer** for debt/legal surprises. (3) Publish **non-goals** in the doc header.", "openWith": "“Roadmaps are communication tools for bets—mine start from strategy layers, not Jira tickets.”"}, {"category": "Prioritization & roadmap", "title": "“Technical debt vs features”", "q": "Eng wants a quarter of debt paydown; sales wants features.", "framework": "Reframe as **risk**: value/usability/feasibility/viability. Debt is feasibility + velocity risk; connect it to revenue or incident risk in dollars or SLAs.", "examples": "(1) Pair each feature with a **quality gate**. (2) Quantify **incident / dev-hours tax**. (3) Alternate **tollgates**—no new surface area if SLO red.", "openWith": "“I’d translate debt into forecastable delivery and reliability risk, then trade at the leadership level—not in a hallway fight.”"}, {"category": "Prioritization & roadmap", "title": "“Competing stakeholders”", "q": "Sales, legal, and design disagree on a launch.", "framework": "PM owns **value + viability**; bring constraints into discovery **early** (Cagan’s sacred responsibilities). Use explicit **decision logs** and escalation paths.", "examples": "(1) Joint **PR/FAQ**-style narrative to expose conflicts. (2) **Pre-mortem** for launch failure modes. (3) **RACI** for who decides vs consults.", "openWith": "“My job is to make tradeoffs explicit with data and risk, not to absorb every function’s max wish.”"}, {"category": "Prioritization & roadmap", "title": "“Kill a project”", "q": "When do you stop investing in a live initiative?", "framework": "**Kill criteria** + **pre-mortem** (Duke-style discipline, Ch.12) paired with **hypothesis clarity**—is the core bet disproved, or is execution just hard (Weaver tension in Ch.12)?", "examples": "(1) Define **leading indicators** that should move by date X. (2) Separate “no traction” from “wrong channel.” (3) Sunset with **customer migration** plan.", "openWith": "“I’d separate ‘hard execution’ from ‘disproven thesis’—kill criteria should be set when we start, not when we’re tired.”"}, {"category": "Product sense / design (“Design X for Y”)", "title": "“Design a grocery app for seniors”", "q": "Design an app for seniors buying groceries.", "framework": "**Job map** + **constraints** (vision, motor, trust, payment) → **progressive disclosure** → **risk reversal** (support, refunds). State assumptions; pick a narrow beachhead day-one.", "examples": "(1) Default flows: **large type**, **one primary CTA**, **human help**. (2) Validate with **task completion**, not preference surveys. (3) Instrument **drop-off by step**.", "openWith": "“I’d anchor on the job—get weekly staples reliably—then design for fear, not just efficiency.”"}, {"category": "Product sense / design (“Design X for Y”)", "title": "“What is good product sense?”", "q": "How do you define product sense?", "framework": "Pattern recognition across **user pain**, **business model**, and **feasibility**; ability to predict **second-order effects** of a change.", "examples": "(1) “What breaks at 10× scale?” (2) “What metric games this?” (3) “What’s the **adjacent user** we’re not serving?” (Ch.4 themes).", "openWith": "“Product sense is compressed causality—knowing which levers actually move outcomes for *this* user and model.”"}, {"category": "Product sense / design (“Design X for Y”)", "title": "“Improve onboarding”", "q": "Activation is weak. Where do you start?", "framework": "**Activation is highest-leverage** once PMF exists (Ch.3); map **time-to-value**; remove steps that don’t correlate with retention.", "examples": "(1) **Session replay + funnel** by cohort. (2) **Remove** optional fields. (3) A/B **first-run checklist** vs empty state.", "openWith": "“I’d map time-to-first-success, then cut anything that doesn’t predict retained users.”"}, {"category": "Product sense / design (“Design X for Y”)", "title": "“Delight vs complexity”", "q": "Users ask for power features; the product is already complex.", "framework": "**DHM** (Delight, Hard-to-copy, Margin-enhancing—Ch.2/3)—delight without hard-to-copy or margin is fragile.", "examples": "(1) **Progressive complexity** for power users. (2) **Defaults + advanced**. (3) Measure **support tickets per feature**.", "openWith": "“Delight that isn’t hard to copy or margin-positive becomes debt—I’d price the complexity in those terms.”"}, {"category": "Product sense / design (“Design X for Y”)", "title": "“Accessibility / inclusion”", "q": "How do you prioritize accessibility?", "framework": "Risk (**viability**: legal), growth (**adjacent users**), and quality (**usability**). Tie to outcomes, not virtue.", "examples": "(1) **WCAG** as release gate for surfaces. (2) **Dogfood** with assistive tech. (3) Track **task success** with a11y cohorts.", "openWith": "“I treat accessibility as a quality and risk requirement with measurable task success, not a backlog nice-to-have.”"}, {"category": "Product sense / design (“Design X for Y”)", "title": "“Innovation vs iteration”", "q": "Should we bet big or iterate small?", "framework": "Match to **strategy stage** and **reversibility**; use **crux** to decide if a step-change bet is warranted.", "examples": "(1) **Optionality** via modular architecture. (2) **Platform-ize** only after 3rd use case. (3) **Kill** small bets that crowd the crux.", "openWith": "“Innovation without a diagnosis of the crux is theater—I’d size the bet to what the strategy moment requires.”"}, {"category": "Strategy & vision", "title": "“What is strategy in one minute?”", "q": "Define strategy vs goals vs roadmap.", "framework": "Rumelt: **diagnosis + guiding policy + coherent actions**. Martin: integrated choices that **compel customer behavior**. Helmer: **power** needs benefit + barrier.", "examples": "(1) “10 goals” is not strategy. (2) Roadmap without **where to play / how to win** is wishful. (3) Moats need **barriers**, not slogans.", "openWith": "“Strategy is the smallest set of coherent choices that address the hardest barrier to winning.”"}, {"category": "Strategy & vision", "title": "“Where to play / how to win”", "q": "We’re considering three markets. How do you choose?", "framework": "Martin’s **cascade** + Moore **beachhead**: pick a pond you can **dominate** before expanding.", "examples": "(1) **30–50% share** plausible in 24 months test. (2) **Reference customers** in segment (Ch.1/4 B2B patterns). (3) Explicit **excluded segments**.", "openWith": "“I’d pick the smallest market we can credibly win and earn the right to expand—concentration beats spray.”"}, {"category": "Strategy & vision", "title": "“Competitive response”", "q": "A competitor copied our core feature.", "framework": "Ask if you had real **power** (Helmer) or **UX-only delight**. Respond with **hard-to-copy** investments (data, workflow lock-in, ecosystem).", "examples": "(1) **Network / data flywheel** audit. (2) **Switching costs** via integrations. (3) **Narrative**: category story only you can tell (Ch.11).", "openWith": "“If a copy killed us, we didn’t have a barrier—I’d invest in what compounds, not feature parity.”"}, {"category": "Strategy & vision", "title": "“Vision vs execution”", "q": "Founders want a 10-year vision; teams want clarity this month.", "framework": "Vision sets **constraints and taste**; strategy chooses **bets**; roadmaps communicate **sequencing**. Don’t conflate layers (Mehta stack).", "examples": "(1) **Quarterly narrative** tied to vision. (2) **Thematic OKRs** not task lists. (3) **Demo rhythm** to prove progress.", "openWith": "“Vision tells us what world we’re building; strategy picks the next hill; the roadmap is how we take that hill without lying about dependencies.”"}, {"category": "Strategy & vision", "title": "“Platform strategy”", "q": "When do you build a platform vs point solutions?", "framework": "Third-use-case rule (common pattern): platformize when the same primitive repeats; else ship vertical slices faster.", "examples": "(1) **API adoption** metrics before “platform OKRs.” (2) **Developer time saved** as North Star for platform. (3) Guardrails on **breaking changes**.", "openWith": "“I platformize when multiple teams would ship the same primitive anyway—otherwise it’s resume-driven architecture.”"}, {"category": "Strategy & vision", "title": "“Pricing / packaging”", "q": "How does strategy connect to pricing?", "framework": "Pricing is a **choice** in Martin’s cascade; it signals **where to play** and shapes **unit economics** and sales motion (Ch.9).", "examples": "(1) **Value metric** aligned to customer outcome. (2) **Good/better/best** to segment willingness to pay. (3) Test **packaging** before headline price.", "openWith": "“Pricing is part of strategy—it’s how we capture value from the customer behavior we’re trying to compel.”"}, {"category": "Growth", "title": "“Growth is slowing—hire growth?”", "q": "Growth slowed; should we hire a growth team?", "framework": "Elena Verna pattern (Ch.3): growth **amplifies** PMF; it rarely **fixes** core product or GTM strategy. Sequence: **PMF → activation → loops → acquisition**.", "examples": "(1) **Retention cohorts** before spend. (2) **PMF survey** filter. (3) Map **loops**, not funnel only.", "openWith": "“If retention is weak, a growth team optimizes acquisition of churn—I’d prove PMF and activation first.”"}, {"category": "Growth", "title": "“Build a growth model”", "q": "How do you model growth for a B2B SaaS product?", "framework": "**Loops** (action → reaction) + identify **constraint**; engines vs fuel (race car framework in Ch.3).", "examples": "(1) **Viral / content / product / sales** loops map. (2) Instrument **activation → paid** conversion. (3) Find **bottleneck** stage quarterly.", "openWith": "“I’d draw the loops, find the constraint, and only then pick tactics—otherwise we’re spraying fuel.”"}, {"category": "Growth", "title": "“PLG vs sales”", "q": "Should we be PLG or sales-led?", "framework": "Modern answer is **hybrid** (Ch.3/9): PLG for activation/expansion; sales for complexity, procurement, enterprise wedge.", "examples": "(1) **PQL** triggers for sales assist. (2) **Self-serve** first for ICP SMB. (3) **Enterprise SKUs** with services.", "openWith": "“It’s rarely either/or—the question is where self-serve reduces friction and where humans close risk.”"}, {"category": "Growth", "title": "“Referral program”", "q": "Should we add referrals?", "framework": "Referrals are a **loop**, not a banner; they need **motivated senders + valuable recipients** + measurement of **quality** (Ch.3 distribution notes).", "examples": "(1) **Double-sided** incentives with fraud controls. (2) Referral **quality** vs volume. (3) Trigger at **moment of delight**.", "openWith": "“Referrals work when the product moment naturally invites sharing—I’d validate quality before incentives.”"}, {"category": "Growth", "title": "“International expansion”", "q": "How do you approach international growth?", "framework": "Treat as **new beachhead**: localization, payments, compliance, and often **different loops**; don’t assume US PMF transfers.", "examples": "(1) **Country-level** retention parity goal. (2) **Local power users** interviews. (3) **Partners** for trust-heavy markets.", "openWith": "“International is a strategy problem, not a translation problem—I’d pick a beachhead and prove retention there.”"}, {"category": "Growth", "title": "“Viral loop design”", "q": "What makes a viral loop actually work?", "framework": "**K-factor math** is necessary but insufficient—**retention of inviter and invitee** and **contextual fit** dominate (Ch.3 Instagram / consumer patterns).", "examples": "(1) **Recipient value** in first session. (2) **Frictionless** invite path. (3) **Social proof** surfaces.", "openWith": "“Viral loops fail when invites feel spammy—I optimize recipient value first, inviter incentives second.”"}, {"category": "Metrics & success definition", "title": "“Define success for a new feature”", "q": "How do you define success before shipping?", "framework": "**Outcome + input metrics** (Carr, Ch.5); avoid composite metrics; pre-register **OEC** for experiments when possible (Kohavi culture).", "examples": "(1) **Guardrail metrics** (latency, support load). (2) **Primary** customer outcome. (3) **Leading** input drivers.", "openWith": "“I’d pair one customer-outcome primary with guardrails and leading inputs we control—no vague ‘engagement up.’”"}, {"category": "Metrics & success definition", "title": "“North Star metric”", "q": "What’s a good North Star?", "framework": "Ellis criteria (Ch.5): reflects **customer value**, can grow, often **frequency**-linked; revenue is a **consequence**, not the star.", "examples": "(1) **Nights booked** vs bookings count. (2) **Successful tasks completed** vs clicks. (3) Align sub-metrics in a **tree**.", "openWith": "“A North Star should track delivered value, not internal activity—otherwise we optimize theater.”"}, {"category": "Metrics & success definition", "title": "“Experiment says neutral”", "q": "Your A/B test is flat. What now?", "framework": "**Segment** results; check **power**, **guardrails**, and whether the hypothesis was **value** vs **local max** (Ch.5 experimentation culture).", "examples": "(1) Slice by **new vs power** users. (2) **Qual** on “why flat.” (3) Try **step-function** change, not tweak.", "openWith": "“Flat often means wrong segment, underpowered test, or small change—I’d diagnose which before shipping.”"}, {"category": "Metrics & success definition", "title": "“Goodhart / metric gaming”", "q": "Teams are gaming the metric. What do you do?", "framework": "**Goodhart’s law**—add **guardrails**, **qualitative audits**, and **distributional** views (DoorDash lesson in Ch.5).", "examples": "(1) Pair **quality sampling** with volume KPIs. (2) **Fail-state** metrics. (3) Rotate **review** ownership.", "openWith": "“Any single number will be gamed—I’d redesign incentives around a small bundle of hard-to-game signals.”"}, {"category": "Metrics & success definition", "title": "“Leading vs lagging”", "q": "Board wants revenue; team needs actionable goals.", "framework": "Translate revenue into **inputs** you control (selection, speed, reliability—Amazon flywheel story, Ch.5).", "examples": "(1) **Conversion inputs** per funnel stage. (2) **Sales pipeline** health for B2B. (3) **Unit economics** bridge.", "openWith": "“Revenue is a lagging scoreboard—I’d commit the org to customer inputs that historically move it.”"}, {"category": "Metrics & success definition", "title": "“AI / engagement metrics”", "q": "How do you measure an AI feature?", "framework": "Blend **offline checks** for known failures with **production signals** (implicit + explicit) and staged autonomy (Ch.13 + Reganti/Badam episode).", "examples": "(1) **Task success rate** by scenario. (2) **Human edit distance** on drafts. (3) **Escalation rate** to humans.", "openWith": "“AI features need probabilistic measurement—paired eval slices and live trace review, not one dashboard.”"}, {"category": "Execution & working with eng/design", "title": "“PM vs eng conflict”", "q": "Engineering says your spec is wrong / infeasible.", "framework": "Pull engineers into **problem discovery** early; PM owns **value + viability**, eng owns **feasibility**—collaborate on tradeoffs (Cagan, Ch.1).", "examples": "(1) **Tech spike** time-boxed. (2) **Cut scope** ladder. (3) Joint **risk register**.", "openWith": "“If they’re pushing back, I probably failed to bring them into the problem early—I’d reset to constraints, not argue the spec.”"}, {"category": "Execution & working with eng/design", "title": "“Working with design”", "q": "How do you partner with design well?", "framework": "Shared ownership of **usability risk** + **customer access**; avoid design-as-service org (Ch.1 Chesky nuance).", "examples": "(1) **Joint research** sessions. (2) **Pair** on prototypes before PRD freeze. (3) **Design crits** with decision owner named.", "openWith": "“Great partnerships pair on customer evidence and tradeoffs—design owns usability risk with me, not for me.”"}, {"category": "Execution & working with eng/design", "title": "“Estimates always slip”", "q": "Deadlines slip every sprint.", "framework": "Separate **commitment** from **forecast**; reduce WIP; shrink batch size; surface dependencies; protect **discovery** time (Ch.6 execution themes).", "examples": "(1) **Rolling planning** with explicit buffers. (2) **Definition of ready**. (3) **Scope poker** with leadership.", "openWith": "“Chronic slips usually mean hidden dependency or discovery debt—I’d make uncertainty visible and cut scope earlier.”"}, {"category": "Execution & working with eng/design", "title": "“Bugs in launch week”", "q": "Launch is next week; bug backlog is huge.", "framework": "**Severity × reach** triage; explicit **launch criteria**; hotfix plan; communicate risk to stakeholders with options.", "examples": "(1) **S0/S1** definitions. (2) **Dark launch** / feature flag. (3) **Rollback** runbook.", "openWith": "“Launch decisions are risk decisions—I’d quantify who’s harmed, how many, and whether we can roll back.”"}, {"category": "Execution & working with eng/design", "title": "“Agile / Scrum frustrations”", "q": "Scrum feels bureaucratic.", "framework": "Scrum is a delivery skeleton; **product management** is broader (Perri critique in Ch.1)—keep ceremonies that reduce risk, drop theater.", "examples": "(1) **Outcome-based** sprint goals. (2) **Discovery cadence** outside sprint noise. (3) **Quarterly** strategy refresh.", "openWith": "“Ceremonies should serve learning velocity—if they don’t, I’d simplify the process, not blame agile.”"}, {"category": "Execution & working with eng/design", "title": "“Remote / async collaboration”", "q": "How do you run product in a remote org?", "framework": "**Write decisions**, **clear DRI**, **async artifacts** (PRDs, RFCs), synchronous for **high-bandwidth alignment** only.", "examples": "(1) **Decision log** in Slack/docs. (2) **Loom** for context. (3) **Office hours** for stakeholders.", "openWith": "“Remote rewards written clarity and explicit ownership—I invest in artifacts so meetings are rare and decisive.”"}, {"category": "Leadership without authority / influence", "title": "“No authority—how do you lead?”", "q": "How do you influence without being the boss?", "framework": "**Creator not facilitator** + **three sacred relationships** (customers, eng, stakeholders) + **trust as currency** (Ch.1).", "examples": "(1) Bring **customer clip** to debate. (2) **Pre-brief** allies before forums. (3) **Document** decisions crisply.", "openWith": "“Influence comes from evidence and earned trust—I sell outcomes, not opinions.”"}, {"category": "Leadership without authority / influence", "title": "“Disagree with your manager”", "q": "You disagree with your manager on direction.", "framework": "**Impact > optics** (Doshi) + **three realities** (Robin, Ch.12) + propose **cheap tests** instead of abstract debate.", "examples": "(1) **Write a one-pager** with options and recommendation. (2) Ask for **decision criteria**. (3) Commit or escalate once.", "openWith": "“I’d translate disagreement into a decision memo with a test plan—disagree and commit beats passive resistance.”"}, {"category": "Leadership without authority / influence", "title": "“Cross-functional politics”", "q": "Another team is blocking you politically.", "framework": "Map **incentives**; build **coalitions**; make their success metric visible (Pfeffer visibility lessons, Ch.12—use ethically).", "examples": "(1) **Shared OKR** slice. (2) **Exec sponsor** alignment. (3) **Trade** something they value.", "openWith": "“Blockers are usually incentive misalignment—I’d find the win-win metric, not win the argument.”"}, {"category": "Leadership without authority / influence", "title": "“Crisis / incident”", "q": "Major outage—what’s your role as PM?", "framework": "**Command clarity**: customer comms, scope triage, stakeholder updates; defer blame; protect eng focus; define **recovery success**.", "examples": "(1) **Status page** messaging. (2) **Customer outreach** for top accounts. (3) **Postmortem** with action owners.", "openWith": "“In incidents I own narrative and customer impact while eng owns mitigation—I remove noise.”"}, {"category": "Leadership without authority / influence", "title": "“Stakeholder says ‘just ship it’”", "q": "Legal/compliance is slow; business pressures ship.", "framework": "Reframe as **viability risk**; offer phased rollout, **beta cohort**, monitoring; escalate with **explicit risk acceptance** doc.", "examples": "(1) **Feature flag** + limited population. (2) **Legal review** checklist upfront next time. (3) **Rollback** plan.", "openWith": "“I’d make risk binary and visible—either we accept it with signatures or we scope the release.”"}, {"category": "Leadership without authority / influence", "title": "“Motivate a tired team”", "q": "Team is burned out after a crunch.", "framework": "Acknowledge reality; reduce WIP; protect **recovery**; align on meaningful **customer outcome** (inner work themes Ch.12 intersect execution).", "examples": "(1) **Cancel** low-value meetings. (2) **Celebrate** learning, not heroics. (3) **Repay** debt sprint.", "openWith": "“Motivation returns when people see progress on meaningful work—I’d cut scope and protect recovery time.”"}, {"category": "Hiring & team building", "title": "“What do you look for in PM hires?”", "q": "What traits matter most when hiring PMs?", "framework": "Blend **customer insight**, **strategy**, **execution**, **leadership** competencies (Mehta model in Ch.1/7); hire for **level-appropriate aperture**.", "examples": "(1) **Written case** + debrief quality. (2) **Reference depth** on influence. (3) **Role-play** stakeholder.", "openWith": "“I hire for judgment in ambiguity and evidence of cross-functional traction—skills vary by level.”"}, {"category": "Hiring & team building", "title": "“PM interview question you ask”", "q": "What’s your favorite interview question?", "framework": "Pick questions that reveal **thinking process**: tradeoffs, metrics, customer discovery, conflict resolution—avoid trivia.", "examples": "(1) “Tell me about a **wrong** decision—what signal did you miss?” (2) “How did you **define success**?” (3) “How did you **say no**?”", "openWith": "“I optimize for how they structure ambiguity—decision quality over polish.”"}, {"category": "Hiring & team building", "title": "“Underperforming PM”", "q": "A PM on your team is struggling.", "framework": "Clarify expectations; **SBI**-style feedback; **coaching plan** with measurable behaviors; document timeline (Ch.7 / management canon in themes).", "examples": "(1) Pair on **customer calls**. (2) **Written** spec reviews. (3) **Pre-firing** clarity if no change.", "openWith": "“I’d treat it like a product bug—diagnose which competency gap, then coach with measurable milestones.”"}, {"category": "Hiring & team building", "title": "“Team structure”", "q": "Pods vs platforms vs components—how do you choose?", "framework": "Align structure to **strategy** (Conway’s law); **single-threaded** ownership for big bets where possible (Ch.6).", "examples": "(1) **Platform** when reuse is real. (2) **Pods** when speed to customer matters. (3) Avoid **matrix** without clear DRI.", "openWith": "“Team topology should mirror what we need to learn fastest—structure is a strategy artifact.”"}, {"category": "Hiring & team building", "title": "“Diversity & hiring pipeline”", "q": "How do you build a diverse PM pipeline?", "framework": "Fix **top of funnel**, **rubrics**, **panel balance**, and **bias checks** in cases; measure conversion by stage.", "examples": "(1) **Blind** resume review where possible. (2) **Structured** questions. (3) **Sponsorship** for internal candidates.", "openWith": "“Diversity is a system design problem in hiring—I’d instrument the funnel and standardize evaluation.”"}, {"category": "Hiring & team building", "title": "“Scaling PM org from 3 to 30”", "q": "How does PM org design change as you scale?", "framework": "Introduce **levels**, **craft ownership**, **principles**, and **lightweight processes**; avoid premature bureaucracy (Ch.6/7).", "examples": "(1) **PM principles** doc. (2) **Office hours** with leadership. (3) **Communities of practice** for domains.", "openWith": "“Scaling is trading informal trust for explicit standards—I’d add the minimum process that preserves speed.”"}, {"category": "Career & failure", "title": "“Tell me about a failure”", "q": "Describe a significant failure and what you learned.", "framework": "**STAR** with emphasis on **learning loop**: hypothesis → signal missed → behavior change. Avoid blame-only stories.", "examples": "(1) Shipped feature with **flat experiment**—learned wrong metric. (2) **Mis-scoped** platform—learned discovery gap. (3) **Conflict** mishandled—learned feedback timing.", "openWith": "“I’ll share a failure where I misread a customer signal—and the specific habit I changed afterward.”"}, {"category": "Career & failure", "title": "“Why leave your last job?”", "q": "Why are you looking to move?", "framework": "Honest **inner scorecard** framing (Ch.12 themes) + growth vector; never trash-talk; show **agency**.", "examples": "(1) Seeking **scope** step-up. (2) Seeking **domain** fit. (3) Seeking **culture** aligned to learning.", "openWith": "“I’m optimizing for X in my next chapter—this role maps because…”"}, {"category": "Career & failure", "title": "“Career goals for 5 years”", "q": "Where do you see yourself in five years?", "framework": "Connect to **competency depth** and **impact aperture**—avoid title-only answers; show **self-awareness** (Ch.12).", "examples": "(1) Lead **0→1** then **scale**. (2) Deepen **AI product** craft. (3) Build **org capability** as manager.", "openWith": "“I’m building toward owning ambiguous problem spaces end-to-end—here’s the skill I’m deepening next…”"}, {"category": "Career & failure", "title": "“Handling conflict with a peer”", "q": "Tell me about conflict with a cross-functional peer.", "framework": "**Three realities** + focus on **shared goal** + specific behavior change requests (Ch.12 Robin themes).", "examples": "(1) Misaligned **success metrics** fixed via joint OKR. (2) **Design conflict** resolved with user study. (3) **Timeline** conflict resolved with scope ladder.", "openWith": "“I separate intent from impact, then align incentives—most ‘people problems’ are goal problems.”"}, {"category": "Career & failure", "title": "“Imposter syndrome / confidence”", "q": "When have you doubted yourself?", "framework": "Reframe as **imposter phenomenon** + focus on **inputs you control**; growth mindset without toxic positivity (Ch.12 / Norton themes).", "examples": "(1) First **exec presentation** prep process. (2) **Mentor** feedback loop. (3) **Small wins** log.", "openWith": "“I channel doubt into preparation and external validation with customers—feelings aren’t facts about competence.”"}, {"category": "Career & failure", "title": "“Work-life balance”", "q": "How do you handle intensity?", "framework": "**Energy management** + boundaries + sustainable pace; tie to **team outcomes** (Ch.12 nervous system / burnout themes).", "examples": "(1) **Calendar** blocks for deep work. (2) **Delegate** via clearer specs. (3) **Say no** to low-LNO tasks (Doshi).", "openWith": "“Sustainable pace is a performance strategy—I protect deep work blocks and kill low-leverage meetings.”"}, {"category": "AI & the future of product", "title": "“How is building AI products different?”", "q": "What’s different about AI-native product development?", "framework": "**Non-determinism** (user language × model variance) + **agency–control tradeoff**; ship **staged autonomy** with eval + monitoring loops (Ch.13).", "examples": "(1) Support: **suggest → draft → act**. (2) **Trace review** rituals with eng. (3) **Implicit signals** in prod.", "openWith": "“It’s probabilistic software—you design for calibration, not for a fixed spec path.”"}, {"category": "AI & the future of product", "title": "“PM job in 3 years with AI?”", "q": "Will PMs exist / how does the role change?", "framework": "Execution commoditizes; **judgment, taste, problem selection, and cross-functional narrative** compound; more **builders** across disciplines (Tomer Cohen 2.0 / Zevi / Mohan threads in Ch.13).", "examples": "(1) PM ships **prototype** with agents + PR. (2) PM owns **eval scenarios** + risk tiers. (3) PM drives **workflow mapping** with SMEs.", "openWith": "“The job shifts from writing tickets to owning outcomes and risk in a probabilistic stack—I’m leaning into that.”"}, {"category": "AI & the future of product", "title": "“Evals: necessary or overrated?”", "q": "How do you think about evals for LLM features?", "framework": "Avoid false dichotomy: **offline eval slices** + **production monitoring** + human review for high-stakes paths; define terms precisely (Ch.13 semantic diffusion).", "examples": "(1) **Golden sets** for regressions. (2) **Thumbs down + regenerate** as signals. (3) **Human edit distance** on drafts.", "openWith": "“Evals are one instrument in a feedback orchestra—pair them with live signals or you’ll miss novel failures.”"}, {"category": "AI & the future of product", "title": "“AI for productivity—how you use it?”", "q": "How do you personally use AI tools as a PM?", "framework": "Treat as **thought partner** with tight context loops (Wes Kao 2.0 pattern): draft, critique, iterate; apply delegation rigor.", "examples": "(1) **Memo outlines** + devil’s advocate prompts. (2) **Meeting summaries** to decisions. (3) **SQL/exploratory** assistance with verification.", "openWith": "“I use AI to shorten iteration time on writing and analysis—but I own verification and customer truth.”"}, {"category": "AI & the future of product", "title": "“Responsible AI / risk”", "q": "What risks worry you most with AI features?", "framework": "Wrong actions at scale, **privacy**, **security** (prompt injection noted in AI episodes), **bias**, and **trust erosion**—mitigate with scope, monitoring, and human gates (Ch.13).", "examples": "(1) **High-risk** actions require human approval. (2) **Red-team** prompts. (3) **Customer comms** on limitations.", "openWith": "“Risk scales with autonomy—I match guardrails to what the agent can do, not to what the demo showed.”"}, {"category": "AI & the future of product", "title": "“Org adoption of AI”", "q": "How would you help a company adopt AI responsibly?", "framework": "Leader **hands-on learning**, SME **psychological safety**, and **workflow-first** automation; avoid FOMO buying (Ch.13 triangle).", "examples": "(1) **Training** + internal guild. (2) **Pilot** in ops before customer-facing. (3) **Executive** office hours on demos.", "openWith": "“Adoption fails from fear and magical thinking—I’d pair education with narrow, measurable pilots tied to workflows.”"}];
+
+    const catSel = document.getElementById("cat");
+    const flipCard = document.getElementById("flipCard");
+    const front = document.getElementById("front");
+    const back = document.getElementById("back");
+    const progress = document.getElementById("progress");
+
+    let active = [...CARDS];
+    let idx = 0;
+
+    function categories() {
+      const s = new Set();
+      CARDS.forEach((c) => s.add(c.category));
+      return [...s].sort((a, b) => a.localeCompare(b));
+    }
+
+    function rebuildCategorySelect() {
+      const cats = categories();
+      catSel.innerHTML = '<option value="">All categories</option>';
+      cats.forEach((c) => {
+        const o = document.createElement("option");
+        o.value = c;
+        o.textContent = c;
+        catSel.appendChild(o);
+      });
+    }
+
+    function escapeHtml(s) {
+      return s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function fmtBold(s) {
+      return escapeHtml(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    }
+
+    function render() {
+      if (!active.length) {
+        front.innerHTML =
+          '<span class="tag">Empty</span><p class="q">No cards match this filter.</p>';
+        back.innerHTML = "";
+        progress.textContent = "";
+        flipCard.classList.remove("flipped");
+        return;
+      }
+      if (idx >= active.length) idx = 0;
+      if (idx < 0) idx = active.length - 1;
+      const c = active[idx];
+      flipCard.classList.remove("flipped");
+      front.innerHTML =
+        '<span class="tag">' +
+        escapeHtml(c.category) +
+        "</span>" +
+        '<p class="card-title">' +
+        escapeHtml(c.title) +
+        "</p>" +
+        '<p class="q">' +
+        escapeHtml(c.q) +
+        "</p>";
+      back.innerHTML =
+        "<h3>Framework</h3><p>" +
+        fmtBold(c.framework) +
+        "</p><h3>Examples</h3><p>" +
+        fmtBold(c.examples) +
+        "</p><h3>Open with</h3><p>" +
+        fmtBold(c.openWith) +
+        "</p>";
+      progress.textContent = idx + 1 + " / " + active.length + " · " + c.category;
+    }
+
+    function applyFilter() {
+      const v = catSel.value;
+      active = v ? CARDS.filter((c) => c.category === v) : [...CARDS];
+      idx = 0;
+      render();
+    }
+
+    function shuffleDeck() {
+      const v = catSel.value;
+      const pool = v ? CARDS.filter((c) => c.category === v) : [...CARDS];
+      active = pool.slice();
+      for (let i = active.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const t = active[i];
+        active[i] = active[j];
+        active[j] = t;
+      }
+      idx = 0;
+      render();
+    }
+
+    function go(delta) {
+      if (!active.length) return;
+      idx = (idx + delta + active.length) % active.length;
+      flipCard.classList.remove("flipped");
+      render();
+    }
+
+    function toggleFlip() {
+      flipCard.classList.toggle("flipped");
+    }
+
+    document.getElementById("prev").addEventListener("click", () => go(-1));
+    document.getElementById("next").addEventListener("click", () => go(1));
+    document.getElementById("flipBtn").addEventListener("click", toggleFlip);
+    flipCard.addEventListener("click", toggleFlip);
+    flipCard.addEventListener("keydown", (e) => {
+      if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        toggleFlip();
+      }
+    });
+
+    document.getElementById("shuffle").addEventListener("click", shuffleDeck);
+    document.getElementById("all").addEventListener("click", () => {
+      catSel.value = "";
+      active = [...CARDS];
+      idx = 0;
+      render();
+    });
+
+    catSel.addEventListener("change", applyFilter);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.target && (e.target.tagName === "SELECT" || e.target.tagName === "INPUT")) return;
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        go(1);
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        go(-1);
+      }
+      if (e.key === " ") {
+        e.preventDefault();
+        toggleFlip();
+      }
+    });
+
+    rebuildCategorySelect();
+    active = [...CARDS];
+    render();
+  </script>
+</body>
+</html>
