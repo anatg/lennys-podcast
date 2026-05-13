@@ -128,18 +128,34 @@
       line-height: 1.35;
     }
     .back h3 {
-      margin: 0 0 0.5rem;
-      font-size: 0.75rem;
+      margin: 0.85rem 0 0.35rem;
+      font-size: 0.72rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       color: var(--muted);
     }
+    .back h3:first-child { margin-top: 0; }
     .back p {
-      margin: 0 0 0.85rem;
-      font-size: 0.95rem;
+      margin: 0 0 0.5rem;
+      font-size: 0.92rem;
       color: #dce4ef;
     }
     .back p:last-child { margin-bottom: 0; }
+    .say-this {
+      background: rgba(91, 141, 239, 0.1);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 0.65rem 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+    .say-this p {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: #e7ecf3;
+      line-height: 1.4;
+      font-style: italic;
+    }
     .hint {
       margin-top: 0.75rem;
       font-size: 0.78rem;
@@ -264,12 +280,12 @@
         escapeHtml(c.q) +
         "</p>";
       back.innerHTML =
-        "<h3>Framework</h3><p>" +
-        fmtBold(c.framework) +
-        "</p><h3>Examples</h3><p>" +
-        fmtBold(c.examples) +
-        "</p><h3>Open with</h3><p>" +
+        "<h3>Say this</h3><div class='say-this'><p>" +
         fmtBold(c.openWith) +
+        "</p></div><h3>Key insight</h3><p>" +
+        fmtBold(c.framework) +
+        "</p><h3>Stories to draw from</h3><p>" +
+        fmtBold(c.examples) +
         "</p>";
       progress.textContent = idx + 1 + " / " + active.length + " · " + c.category;
     }
