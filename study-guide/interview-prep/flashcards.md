@@ -427,6 +427,91 @@ Single-file deck derived from **`study-guide/themes/`** (the “book” chapters
 
 ---
 
+## Behavioral / Story Bank
+
+> **How to use:** Front = the behavioral question. Back shows your BLUF opener first, then the PEARL skeleton pre-filled with the best story, then story reference + interviewer-type emphasis. 90-second answer: opener (10s) → PEARL walkthrough (60s) → learning (20s).
+>
+> **Story IDs:** S001 AFT Launch · S002 Visa DPS Migration · S003 Valon Financial Admin 0→1 · S004 Property Preservation · S005 Growth Onboarding Funnel · S007 Checks/RDC · S009 Coaching Rebecca · S010 Dormant Account Decision · S-FAIL AFT Fraud Controls · S-NO Tasks Say No
+
+### Card 1: "Tough trade-off / scope under pressure"
+**Q:** Tell me about a time you made a hard prioritization call under significant pressure.
+**Contexts:** Behavioral Screen, HM Screen, Eng Partner Screen
+**Framework:** PEARL — **P:** 4M-user Visa DPS migration, hard deadline; engineering proposed dropping dormant accounts to reduce payload · **E:** Dormant ≠ churned — reactivation loops (tax refunds, marketing campaigns) bring users back; a broken experience on return = permanent churn + CS burden · **A:** Rejected the drop; proposed two-tier async pipeline — active accounts in primary overnight window, dormant backfilled via low-priority worker queues · **R:** Full 4M-user DB migrated intact; reactivation campaigns landed on a perfectly functional experience; no churn wave · **L:** Execution pressure creates short-term optimization bias; PM's job is to hold the long view on user trust
+**Examples:** **Primary:** S010 Dormant Account Decision · **Alt:** S004 Property Preservation (MVP scope discipline under enterprise deadline) · **For Eng Partner:** Lead with the two-tier pipeline proposal — show you understood the technical tradeoff, not just the business one
+**Open with:** "I held the line on including dormant accounts in our 4-million-user processor migration — because 'inactive' doesn't mean 'gone' in consumer fintech."
+
+### Card 2: "Disagree with engineering"
+**Q:** Tell me about a significant disagreement you had with your engineering team and how you resolved it.
+**Contexts:** Behavioral Screen, Eng Partner Screen
+**Framework:** PEARL — **P:** RDC check rendering showed deposits 1 day late vs. actual settlement — compliance and user trust issue requiring urgent fix · **E:** Engineering wanted a full rewrite; urgent compliance need + rewrite risk = wrong call, but their underlying concern about tech debt was legitimate · **A:** Pushed for targeted fix first; ship it; formally schedule the refactor with dedicated sprint capacity I explicitly committed to advocating for · **R:** Compliance resolved in days; refactor prioritized next sprint; engineers felt heard because I followed through on the commitment · **L:** Engineers push for rewrites because they don't trust tech debt gets addressed later — the real fix is building that trust by following through
+**Examples:** **Primary:** S007 Checks/RDC · **For Eng Partner:** Lead with how you acknowledged their concern as valid before proposing the alternative — show you heard the technical debt argument, not just the timeline one
+**Open with:** "My instinct was the opposite of engineering's. They wanted a full rewrite; I wanted a surgical fix. Here's how both goals survived."
+
+### Card 3: "Failure"
+**Q:** Tell me about a significant professional failure and what you learned from it.
+**Contexts:** Behavioral Screen, HM Screen
+**Framework:** PEARL — **P:** Inherited AFT after 9 months of prior PM work; asked to scale rollout · **E:** Treated the handoff PRD as due diligence — didn't independently verify risk controls were actually in place · **A:** Scaled from 25% to 50%; saw ~$1M in fraud within days; shut the product down; rebuilt with Visa/Tabapay benchmark controls: card attach limits, velocity rules, amount caps, failed-attempt logic, internal risk scoring · **R:** Relaunched clean; D7 funding 1.3% → 3.7%; AFT became foundation for OCT, a fee-based money-out rail projected to reach millions annually · **L:** When you inherit a product, don't read the PRD — talk to the vendor, Risk, Support, and the people who've seen it break at scale before touching the rollout dial
+**Examples:** **Primary:** S-FAIL AFT Fraud Controls · **For HM Screen:** Emphasize holding the line on relaunch timing despite leadership pressure to move fast — judgment under pressure is the real story
+**Open with:** "I caused roughly a million dollars in fraud losses in my first month owning AFT. Here's exactly what I missed and what I built differently afterward."
+
+### Card 4: "Data and research drove direction"
+**Q:** Tell me about a time you used data and research to challenge an assumption and change product direction.
+**Contexts:** Behavioral Screen, HM Screen, Design Partner Screen
+**Framework:** PEARL — **P:** Current payroll deposit attachment lagging; internal team was about to cut onboarding steps, believing the problem was UX friction · **E:** Quant shows *where* users drop; qual shows *why* — you cannot fix a trust problem by optimizing a UI · **A:** 3-pronged diagnostic sprint: Amplitude cohort funnels (where exactly), in-app micro-surveys at drop-off moments (live intent), unsupervised UserTesting sessions (why) — found anxiety at the bank credential step, not confusion · **R:** Shifted from simplifying the flow to adding trust signals (plain-language security copy, privacy guarantees, off-ramps) → 3% absolute activation lift; directly validated the AFT greenlight · **L:** If you try to fix a funnel drop-off before understanding user emotion, you're optimizing a UI users don't trust
+**Examples:** **Primary:** S005 Growth Onboarding Funnel · **For Design Partner:** Lead with the UserTesting methodology — unsupervised sessions where watching the user's body language changed the diagnosis
+**Open with:** "We were about to cut steps from our onboarding. The research showed the problem wasn't friction — it was fear."
+
+### Card 5: "Most impactful project"
+**Q:** Walk me through the most impactful project you've shipped.
+**Contexts:** Behavioral Screen, HM Screen, Eng Partner Screen
+**Framework:** PEARL — **P:** Current D7 funding rate at 1.3% — 98.7% of signups never put money in; no funding = no swipe = no interchange · **E:** Leadership focused on card attach rate; I modeled LTV impact and showed D7 funding improvement beat continued acquisition spend; then inherited broken AFT with $1M fraud incident — had to rebuild before scaling · **A:** Built business case to reframe KPI; rebuilt risk controls from scratch using Visa/Tabapay benchmarks; staged rollout with clean cohort signal before scaling · **R:** 1.3% → 3.7% D7 funding; infrastructure became foundation for OCT (fee-based money-out rail) · **L:** Platform thinking — the activation rail became the monetization rail
+**Examples:** **Primary:** S001 AFT Launch (full arc: business case → fraud rebuild → relaunch) · **Alt for 0→1 framing:** S003 Valon Financial Admin · **For Eng Partner:** Lead with the risk controls rebuild — show you understood the technical requirements well enough to drive the vendor conversations
+**Open with:** "The most impactful project I've shipped required me to first admit I'd lost a million dollars in fraud — and then rebuild it correctly before scaling."
+
+### Card 6: "Influence without authority / changed leadership's mind"
+**Q:** Tell me about a time you influenced a decision you didn't have authority over, or changed how leadership was prioritizing.
+**Contexts:** Behavioral Screen, HM Screen
+**Framework:** PEARL — **P:** Current leadership focused on acquisition; D7 funding (payroll attach) was lagging but not treated as a roadmap priority · **E:** A 1-point improvement in D7 funding was worth more to LTV than continued acquisition spend — but no one had modeled it · **A:** Built unit economics model; translated product judgment into financial language leadership already used; showed contribution margin impact; reframed debate from opinion to financial impact · **R:** Got buy-in to run the activation sprint; research confirmed funding friction as root cause; AFT launch followed → 3%+ lift · **L:** Influence at leadership level requires speaking their language — product judgment expressed in dollars and margin, not product instinct
+**Examples:** **Primary:** S005 Growth Onboarding Funnel (reframing acquisition obsession) · **Secondary:** S010 Dormant Account (holding the line against engineering + ops pressure under deadline)
+**Open with:** "I reframed our acquisition-obsessed roadmap by showing leadership that 1 point of D7 funding rate was worth more than another campaign — in dollars."
+
+### Card 7: "Mentoring / developing someone"
+**Q:** Tell me about a time you coached or developed someone on your team.
+**Contexts:** Behavioral Screen, HM Screen
+**Framework:** PEARL — **P:** Valon's ops-product-eng loop was broken; weekly syncs were chaotic grievance sessions; engineers dreaded them; no structured PM training existed · **E:** Teams lacked a shared language — ops spoke in daily grievances, eng in sprint velocity; PM is the translation layer, not the referee · **A:** Replaced unstructured complaints with impact-driven triage (monthly frequency × time inflation × compliance risk); pulled high-performing Biz Ops associate Rebecca into the new process; coached her through discovery, spec writing, and trade-off reasoning · **R:** Syncs became efficient planning sessions with predictable engineering commitments; Rebecca transitioned into a full PM role at another company · **L:** When cross-functional relationships break down, the fix is almost always a shared language — not a personnel change
+**Examples:** **Primary:** S009 Coaching Rebecca at Valon · **For leadership angle:** Emphasize how fixing the process created psychological safety for Rebecca to step up — culture change as a byproduct of process design
+**Open with:** "I fixed a broken cross-functional process at Valon — and built a PM in the process."
+
+### Card 8: "Saying no / principled pushback"
+**Q:** Tell me about a time you had to say no to a stakeholder request you genuinely empathized with.
+**Contexts:** Behavioral Screen, HM Screen, Eng Partner Screen
+**Framework:** PEARL — **P:** Valon ops team kept requesting an invoice workflow fix — legitimate daily pain, 3-week build estimate · **E:** Platform team was 10 weeks out from infrastructure that would solve it permanently; the quick fix would break when the platform shipped — net negative for everyone · **A:** Said no to the immediate fix; brought ops team into the platform design process; gave them staging access and preview so they felt ownership over the outcome, not just delay · **R:** Platform shipped; solved their original ask plus two pain points they hadn't named; better outcome than the quick fix would have been · **L:** The hardest "no" is when short-term pain is real — inclusion in the design process is what earns the trust to wait
+**Examples:** **Primary:** S-NO Tasks Say No · **For Eng Partner:** Lead with the platform integrity rationale — premature a la carte fixes compound into architectural debt that slows everyone down
+**Open with:** "I told our ops team to wait 10 weeks instead of 3 — and convinced them it was the right call by bringing them inside the design process."
+
+### Card 9: "0→1 / deeply ambiguous environment"
+**Q:** Tell me about a time you built something from scratch in a highly ambiguous environment.
+**Contexts:** Behavioral Screen, HM Screen
+**Framework:** PEARL — **P:** Mortgage servicers running on legacy systems; no modern SaaS alternative; Valon needed a commercializable enterprise product with no market comps, no existing user base, no playbook · **E:** At Current with 4M users, data finds you. At Valon with 3 design partners, you manufacture every signal deliberately — sales calls, functional prototypes, watching demos live · **A:** Ran deep discovery with top-10 mortgage servicers; identified Loss Prevention engine opportunity during a sales call (not in original roadmap); built platform from concept to sellable SaaS; led technical due diligence for enterprise demos · **R:** 3 pilot customers signed on nine-figure contracts; Loss Prevention engine became a key purchase differentiator · **L:** 0→1 requires a completely different instinct — the absence of data is not a problem to solve, it's the environment you operate in
+**Examples:** **Primary:** S003 Valon Financial Admin 0→1 · **For enterprise/B2B angle:** Lead with the discovery-in-sales approach — how you turned customer calls into product research without a user base to instrument
+**Open with:** "I built a product from zero to nine-figure contracts in under a year — in a market where users navigate by legacy system codes and have never seen modern SaaS."
+
+### Card 10: "Technical complexity / high-stakes infrastructure"
+**Q:** Tell me about a time you navigated significant technical complexity on a high-stakes project.
+**Contexts:** Behavioral Screen, Eng Partner Screen, HM Screen
+**Framework:** PEARL — **P:** Galileo processor hitting limits at 4M+ user scale — cost, feature gaps, no Advanced Authorization; needed direct Visa connection · **E:** Direct Visa connection unlocked AA + cost reduction, but it was an industry first — no playbook, overnight cutover with no rollback option · **A:** 16-month migration; PIN transfer coordination, BIN coordination across Visa and Current; orchestrated overnight live conversion; managed cross-org alignment spanning Visa, ops, and engineering · **R:** Industry first for a neobank; 5% CS inquiry drop week 1; cost reduction; Visa published it as a case study · **L:** Technical complexity requires PM to understand the stack well enough to make risk calls — you can't proxy everything through engineering
+**Examples:** **Primary:** S002 Visa DPS Forward Migration · **For Eng Partner:** Lead with how you understood PIN transfer and BIN coordination constraints well enough to drive the migration sequencing — not just manage the timeline
+**Open with:** "We did something no neobank had done before — migrated 4 million live accounts to a new processor overnight with no rollback option."
+
+### Card 11: "MVP / ruthless scope discipline"
+**Q:** Tell me about a time you had to cut scope dramatically to hit a deadline without cutting quality.
+**Contexts:** Behavioral Screen, Eng Partner Screen
+**Framework:** PEARL — **P:** Days from deploying to first enterprise pilot; ops team running critical workflows in brittle Airtable; bombarding product with feature requests before core data pipeline was even mapped · **E:** Layering custom requests on top of a volatile operational core compounds into debt — foundation must be stable before features · **A:** Spent a week shadowing 3 primary operators live; mapped true core workflows (compliance-critical) vs. nice-to-have automation; froze all custom feature work until baseline architecture was stable in production · **R:** Deployed on schedule; zero data corruption; post-launch features were clean additive builds on solid architecture · **L:** True prioritization means ruthlessly stabilizing the foundation — a pristine MVP beats a feature-rich mess every time
+**Examples:** **Primary:** S004 Property Preservation Case Management · **For Eng Partner:** Lead with the operator shadowing — how watching live gave you ground truth the feature request list never could
+**Open with:** "I banned feature requests from our launch scope — for a product shipping to our first enterprise customer in weeks. Here's how I held the line."
+
+---
+
 ## Appendix: expand this deck
 
 - Add cards from **`## Notable Interview Questions Lenny Asked`** in episodes you personally love—turn each into your own answer skeleton.  

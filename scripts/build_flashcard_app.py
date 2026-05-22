@@ -23,6 +23,7 @@ SKIP_SECTIONS = {"how to practice", "appendix: expand this deck"}
 CARD_RE = re.compile(
     r"###\s+Card\s+\d+:\s*(.+?)\s*\n"
     r"\*\*Q:\*\*\s*(.+?)\s*\n"
+    r"(?:\*\*Contexts:\*\*\s*([^\n]+)\s*\n)?"
     r"\*\*Framework:\*\*\s*(.+?)\s*\n"
     r"\*\*Examples:\*\*\s*(.+?)\s*\n"
     r"\*\*Open with:\*\*\s*(.+?)(?=\n###\s+Card|\n##\s|\n---\s*$|\Z)",
@@ -30,10 +31,10 @@ CARD_RE = re.compile(
 )
 
 
-def parse_cards(md: str) -> list[dict[str, str]]:
+def parse_cards(md: str) -> list[dict]:
     md = md.replace("\r\n", "\n")
     sections = re.split(r"^##\s+(.+?)\s*$", md, flags=re.M)
-    out: list[dict[str, str]] = []
+    out: list[dict] = []
     i = 1
     while i + 1 < len(sections):
         name = sections[i].strip()
@@ -44,12 +45,14 @@ def parse_cards(md: str) -> list[dict[str, str]]:
         if "### Card" not in body:
             continue
         for m in CARD_RE.finditer(body):
-            title, q, fw, ex, ow = (x.strip() for x in m.groups())
+            title, q, ctx_raw, fw, ex, ow = (x.strip() if x else "" for x in m.groups())
+            contexts = [c.strip() for c in ctx_raw.split(",")] if ctx_raw else []
             out.append(
                 {
                     "category": name,
                     "title": title,
                     "q": q,
+                    "contexts": contexts,
                     "framework": fw,
                     "examples": ex,
                     "openWith": ow,
@@ -58,7 +61,7 @@ def parse_cards(md: str) -> list[dict[str, str]]:
     return out
 
 
-def build_html(cards: list[dict[str, str]]) -> str:
+def build_html(cards: list[dict]) -> str:
     data = json.dumps(cards, ensure_ascii=False)
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -74,6 +77,8 @@ def build_html(cards: list[dict[str, str]]) -> str:
       --muted: #8b9cb3;
       --accent: #5b8def;
       --accent-dim: #3d5a8a;
+      --green: #3d9e6e;
+      --green-dim: #1e3a2d;
       --radius: 14px;
       --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     }}
@@ -95,7 +100,7 @@ def build_html(cards: list[dict[str, str]]) -> str:
       display: flex;
       flex-wrap: wrap;
       gap: 0.75rem;
-      align-items: center;
+      align-items: flex-start;
       margin-bottom: 1rem;
     }}
     h1 {{
@@ -112,14 +117,17 @@ def build_html(cards: list[dict[str, str]]) -> str:
       border-radius: 10px;
       padding: 0.45rem 0.65rem;
       font-size: 0.9rem;
-      min-width: 220px;
+      min-width: 200px;
     }}
     .toolbar {{
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
       align-items: flex-end;
+      width: 100%;
     }}
+    .filter-group {{ display: flex; flex-wrap: wrap; gap: 0.5rem; flex: 1 1 auto; }}
+    .filter-item {{ display: flex; flex-direction: column; gap: 0.25rem; }}
     button {{
       background: var(--surface);
       color: var(--text);
@@ -136,12 +144,33 @@ def build_html(cards: list[dict[str, str]]) -> str:
       font-weight: 600;
     }}
     button.primary:hover {{ filter: brightness(1.06); }}
+    .btn-row {{ display: flex; gap: 0.5rem; align-items: flex-end; }}
     .meta {{
       font-size: 0.8rem;
       color: var(--muted);
       margin: 0.35rem 0 0.75rem;
       width: 100%;
     }}
+    .context-chips {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      width: 100%;
+      margin-bottom: 0.25rem;
+    }}
+    .chip {{
+      font-size: 0.75rem;
+      padding: 0.28rem 0.65rem;
+      border-radius: 20px;
+      border: 1px solid #2a3a52;
+      background: var(--surface);
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.15s;
+    }}
+    .chip:hover {{ border-color: var(--accent-dim); color: var(--text); }}
+    .chip.active {{ background: #1e3a5c; border-color: var(--accent); color: var(--text); font-weight: 600; }}
+    .chip.behavioral.active {{ background: var(--green-dim); border-color: var(--green); }}
     .scene {{
       perspective: 1200px;
       margin-top: 0.5rem;
@@ -166,9 +195,7 @@ def build_html(cards: list[dict[str, str]]) -> str:
       box-shadow: 0 12px 40px rgba(0,0,0,0.35);
       overflow: auto;
     }}
-    .face.back {{
-      transform: rotateY(180deg);
-    }}
+    .face.back {{ transform: rotateY(180deg); }}
     .tag {{
       display: inline-block;
       font-size: 0.72rem;
@@ -177,6 +204,7 @@ def build_html(cards: list[dict[str, str]]) -> str:
       color: var(--accent);
       margin-bottom: 0.5rem;
     }}
+    .tag.behavioral {{ color: var(--green); }}
     .card-title {{
       font-size: 0.95rem;
       font-weight: 600;
@@ -210,6 +238,7 @@ def build_html(cards: list[dict[str, str]]) -> str:
       padding: 0.65rem 0.85rem;
       margin-bottom: 0.5rem;
     }}
+    .say-this.behavioral {{ background: rgba(61, 158, 110, 0.1); border-left-color: var(--green); }}
     .say-this p {{
       margin: 0;
       font-size: 1.05rem;
@@ -244,27 +273,41 @@ def build_html(cards: list[dict[str, str]]) -> str:
       justify-content: center;
       flex-wrap: wrap;
     }}
-    a.source {{
-      color: var(--accent);
-      font-size: 0.8rem;
-    }}
+    a.source {{ color: var(--accent); font-size: 0.8rem; }}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
       <h1>PM interview flashcards</h1>
+
       <div class="toolbar">
-        <div>
-          <label for="cat">Category</label><br />
-          <select id="cat" aria-label="Category"></select>
+        <div class="filter-group">
+          <div class="filter-item">
+            <label for="cat">Question type</label>
+            <select id="cat" aria-label="Question type"></select>
+          </div>
         </div>
-        <button type="button" id="shuffle" title="Shuffle current filter">Shuffle</button>
-        <button type="button" id="all" class="primary" title="All categories">All cards</button>
+        <div class="btn-row">
+          <button type="button" id="shuffle" title="Shuffle current filter">Shuffle</button>
+          <button type="button" id="all" class="primary" title="Reset all filters">All cards</button>
+        </div>
       </div>
+
+      <div style="width:100%">
+        <label style="display:block;margin-bottom:0.35rem">Interview context</label>
+        <div class="context-chips" id="contextChips">
+          <button class="chip behavioral" data-ctx="Behavioral Screen">Behavioral Screen</button>
+          <button class="chip" data-ctx="HM Screen">HM Screen</button>
+          <button class="chip" data-ctx="Eng Partner Screen">Eng Partner Screen</button>
+          <button class="chip" data-ctx="Design Partner Screen">Design Partner Screen</button>
+        </div>
+      </div>
+
       <p class="meta" id="progress"></p>
       <a class="source" href="./flashcards.md">Edit source: flashcards.md</a>
     </header>
+
     <div class="scene">
       <div class="card" id="flipCard" role="button" tabindex="0" aria-label="Flip card. Space to flip.">
         <div class="face front" id="front"></div>
@@ -273,22 +316,33 @@ def build_html(cards: list[dict[str, str]]) -> str:
     </div>
     <p class="hint">Click card or <kbd>Space</kbd> to flip · <kbd>←</kbd> <kbd>→</kbd> prev/next</p>
   </div>
+
   <footer class="nav">
     <button type="button" id="prev">← Prev</button>
     <button type="button" id="flipBtn" class="primary">Flip</button>
     <button type="button" id="next">Next →</button>
   </footer>
+
   <script>
     const CARDS = {data};
+
+    const CONTEXT_PRESETS = {{
+      "Behavioral Screen": {{ categories: [], tag: "Behavioral Screen" }},
+      "HM Screen": {{ categories: ["Leadership without authority / influence", "Strategy & vision", "Career & failure"], tag: "HM Screen" }},
+      "Eng Partner Screen": {{ categories: ["Execution & working with eng/design"], tag: "Eng Partner Screen" }},
+      "Design Partner Screen": {{ categories: ["Product sense / design"], tag: "Design Partner Screen" }}
+    }};
 
     const catSel = document.getElementById("cat");
     const flipCard = document.getElementById("flipCard");
     const front = document.getElementById("front");
     const back = document.getElementById("back");
     const progress = document.getElementById("progress");
+    const chips = document.querySelectorAll(".chip[data-ctx]");
 
     let active = [...CARDS];
     let idx = 0;
+    let activeContext = "";
 
     function categories() {{
       const s = new Set();
@@ -308,20 +362,54 @@ def build_html(cards: list[dict[str, str]]) -> str:
     }}
 
     function escapeHtml(s) {{
-      return s
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+      return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }}
 
     function fmtBold(s) {{
       return escapeHtml(s).replace(/\\*\\*(.+?)\\*\\*/g, "<strong>$1</strong>");
     }}
 
+    function filterCards() {{
+      const catVal = catSel.value;
+      let pool = [...CARDS];
+      if (activeContext) {{
+        const preset = CONTEXT_PRESETS[activeContext];
+        pool = pool.filter((c) => {{
+          const inTag = c.contexts && c.contexts.includes(activeContext);
+          const inCat = preset.categories.length > 0 && preset.categories.includes(c.category);
+          return inTag || inCat;
+        }});
+      }} else if (catVal) {{
+        pool = pool.filter((c) => c.category === catVal);
+      }}
+      return pool;
+    }}
+
+    function renderCard(c, currentIdx, total) {{
+      const isBehavioral = c.category === "Behavioral / Story Bank";
+      flipCard.classList.remove("flipped");
+      front.innerHTML =
+        '<span class="tag' + (isBehavioral ? " behavioral" : "") + '">' +
+        escapeHtml(c.category) + "</span>" +
+        '<p class="card-title">' + escapeHtml(c.title) + "</p>" +
+        '<p class="q">' + escapeHtml(c.q) + "</p>";
+      const sayThisLabel = isBehavioral ? "Open with (BLUF)" : "Say this";
+      const frameworkLabel = isBehavioral ? "PEARL skeleton" : "Key insight";
+      const examplesLabel = isBehavioral ? "Story + emphasis" : "Stories to draw from";
+      back.innerHTML =
+        "<h3>" + sayThisLabel + "</h3>" +
+        "<div class='say-this" + (isBehavioral ? " behavioral" : "") + "'><p>" +
+        fmtBold(c.openWith) + "</p></div>" +
+        "<h3>" + frameworkLabel + "</h3><p>" + fmtBold(c.framework) + "</p>" +
+        "<h3>" + examplesLabel + "</h3><p>" + fmtBold(c.examples) + "</p>";
+      const ctxLabel = activeContext ? " · " + activeContext : "";
+      progress.textContent = currentIdx + " / " + total + " · " + c.category + ctxLabel;
+    }}
+
     function render() {{
+      active = filterCards();
       if (!active.length) {{
-        front.innerHTML =
-          '<span class="tag">Empty</span><p class="q">No cards match this filter.</p>';
+        front.innerHTML = '<span class="tag">Empty</span><p class="q">No cards match this filter.</p>';
         back.innerHTML = "";
         progress.textContent = "";
         flipCard.classList.remove("flipped");
@@ -329,100 +417,65 @@ def build_html(cards: list[dict[str, str]]) -> str:
       }}
       if (idx >= active.length) idx = 0;
       if (idx < 0) idx = active.length - 1;
-      const c = active[idx];
-      flipCard.classList.remove("flipped");
-      front.innerHTML =
-        '<span class="tag">' +
-        escapeHtml(c.category) +
-        "</span>" +
-        '<p class="card-title">' +
-        escapeHtml(c.title) +
-        "</p>" +
-        '<p class="q">' +
-        escapeHtml(c.q) +
-        "</p>";
-      back.innerHTML =
-        "<h3>Say this</h3><div class='say-this'><p>" +
-        fmtBold(c.openWith) +
-        "</p></div><h3>Key insight</h3><p>" +
-        fmtBold(c.framework) +
-        "</p><h3>Stories to draw from</h3><p>" +
-        fmtBold(c.examples) +
-        "</p>";
-      progress.textContent = idx + 1 + " / " + active.length + " · " + c.category;
+      renderCard(active[idx], idx + 1, active.length);
     }}
 
-    function applyFilter() {{
-      const v = catSel.value;
-      active = v ? CARDS.filter((c) => c.category === v) : [...CARDS];
+    function setContext(ctx) {{
+      activeContext = activeContext === ctx ? "" : ctx;
+      if (activeContext) catSel.value = "";
+      chips.forEach((chip) => chip.classList.toggle("active", chip.dataset.ctx === activeContext));
       idx = 0;
       render();
     }}
 
     function shuffleDeck() {{
-      const v = catSel.value;
-      const pool = v ? CARDS.filter((c) => c.category === v) : [...CARDS];
-      active = pool.slice();
+      active = filterCards();
       for (let i = active.length - 1; i > 0; i--) {{
         const j = Math.floor(Math.random() * (i + 1));
-        const t = active[i];
-        active[i] = active[j];
-        active[j] = t;
+        [active[i], active[j]] = [active[j], active[i]];
       }}
       idx = 0;
-      render();
+      if (active.length) renderCard(active[0], 1, active.length);
     }}
 
     function go(delta) {{
       if (!active.length) return;
       idx = (idx + delta + active.length) % active.length;
       flipCard.classList.remove("flipped");
-      render();
+      renderCard(active[idx], idx + 1, active.length);
     }}
 
-    function toggleFlip() {{
-      flipCard.classList.toggle("flipped");
-    }}
+    function toggleFlip() {{ flipCard.classList.toggle("flipped"); }}
 
     document.getElementById("prev").addEventListener("click", () => go(-1));
     document.getElementById("next").addEventListener("click", () => go(1));
     document.getElementById("flipBtn").addEventListener("click", toggleFlip);
     flipCard.addEventListener("click", toggleFlip);
     flipCard.addEventListener("keydown", (e) => {{
-      if (e.key === " " || e.key === "Enter") {{
-        e.preventDefault();
-        toggleFlip();
-      }}
+      if (e.key === " " || e.key === "Enter") {{ e.preventDefault(); toggleFlip(); }}
     }});
-
     document.getElementById("shuffle").addEventListener("click", shuffleDeck);
     document.getElementById("all").addEventListener("click", () => {{
       catSel.value = "";
-      active = [...CARDS];
+      activeContext = "";
+      chips.forEach((c) => c.classList.remove("active"));
       idx = 0;
       render();
     }});
-
-    catSel.addEventListener("change", applyFilter);
-
+    catSel.addEventListener("change", () => {{
+      if (catSel.value) {{ activeContext = ""; chips.forEach((c) => c.classList.remove("active")); }}
+      idx = 0;
+      render();
+    }});
+    chips.forEach((chip) => chip.addEventListener("click", () => setContext(chip.dataset.ctx)));
     document.addEventListener("keydown", (e) => {{
       if (e.target && (e.target.tagName === "SELECT" || e.target.tagName === "INPUT")) return;
-      if (e.key === "ArrowRight") {{
-        e.preventDefault();
-        go(1);
-      }}
-      if (e.key === "ArrowLeft") {{
-        e.preventDefault();
-        go(-1);
-      }}
-      if (e.key === " ") {{
-        e.preventDefault();
-        toggleFlip();
-      }}
+      if (e.key === "ArrowRight") {{ e.preventDefault(); go(1); }}
+      if (e.key === "ArrowLeft") {{ e.preventDefault(); go(-1); }}
+      if (e.key === " ") {{ e.preventDefault(); toggleFlip(); }}
     }});
 
     rebuildCategorySelect();
-    active = [...CARDS];
     render();
   </script>
 </body>
@@ -442,7 +495,8 @@ def main() -> None:
     html = build_html(cards)
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUT_PATH.write_text(html, encoding="utf-8")
-    print(f"Wrote {len(cards)} cards -> {OUT_PATH}")
+    behavioral = sum(1 for c in cards if c["contexts"])
+    print(f"Wrote {len(cards)} cards ({behavioral} behavioral) -> {OUT_PATH}")
 
 
 if __name__ == "__main__":
